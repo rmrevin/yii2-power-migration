@@ -37,10 +37,10 @@ abstract class PowerMigration extends \yii\db\Migration
             throw new \yii\base\Exception('Param `$execute` must be `up` or `down`.');
         }
 
-        echo Console::ansiFormat("  > rollback executed instructions\n", [Console::FG_RED, Console::BOLD]);
-
         $executed = $this->executed;
         if (!empty($executed)) {
+            echo Console::ansiFormat("  > rollback executed instructions\n", [Console::FG_RED, Console::BOLD]);
+
             foreach ($executed as $instruction) {
                 switch ($executed_in) {
                     case 'up':
@@ -51,6 +51,8 @@ abstract class PowerMigration extends \yii\db\Migration
                         break;
                 }
             }
+        } else {
+            echo Console::ansiFormat("  > no executed instructions, skip rollback\n");
         }
     }
 
@@ -59,11 +61,19 @@ abstract class PowerMigration extends \yii\db\Migration
      */
     public function up()
     {
+        $this->executed = [];
+
         $instructions = $this->instructions();
         if (!empty($instructions)) {
             foreach ($instructions as $instruction) {
                 try {
-                    if (call_user_func([$this, $instruction . '_up']) === false) {
+                    $method = $instruction . '_up';
+
+                    if (!method_exists($this, $method)) {
+                        throw new \yii\base\UnknownMethodException(sprintf('Method `%s` not exists', get_called_class() . '::' . $method));
+                    }
+
+                    if (call_user_func([$this, $method]) === false) {
                         $this->rollback('up');
 
                         return false;
@@ -88,11 +98,19 @@ abstract class PowerMigration extends \yii\db\Migration
      */
     public function down()
     {
+        $this->executed = [];
+
         $instructions = array_reverse($this->instructions());
         if (!empty($instructions)) {
             foreach ($instructions as $key => $instruction) {
                 try {
-                    if (call_user_func([$this, $instruction . '_down']) === false) {
+                    $method = $instruction . '_down';
+
+                    if (!method_exists($this, $method)) {
+                        throw new \yii\base\UnknownMethodException(sprintf('Method `%s` not exists', get_called_class() . '::' . $method));
+                    }
+
+                    if (call_user_func([$this, $method]) === false) {
                         $this->rollback('down');
 
                         return false;
@@ -117,6 +135,6 @@ abstract class PowerMigration extends \yii\db\Migration
      */
     public function errorTrace(\Exception $e)
     {
-        echo Console::ansiFormat("Exception: " . $e->getMessage() . ' (' . $e->getFile() . ':' . $e->getLine() . ")\n", [Console::FG_RED]);
+        echo "\n" . Console::ansiFormat('Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ':' . $e->getLine() . ')', [Console::BG_RED, Console::FG_BLACK]) . "\n";
     }
 }
