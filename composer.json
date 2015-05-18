@@ -1,0 +1,33 @@
+{
+  "name": "rmrevin/yii2-power-migration",
+  "description": "Migration Extension for Yii2.",
+  "keywords": [
+    "yii2",
+    "migration",
+    "migrate"
+  ],
+  "type": "yii2-extension",
+  "license": "BSD-3-Clause",
+  "minimum-stability": "stable",
+  "support": {
+    "issues": "https://github.com/rmrevin/yii2-power-migration/issues?state=open",
+    "wiki": "https://github.com/rmrevin/yii2-power-migration/wiki",
+    "source": "https://github.com/rmrevin/yii2-power-migration"
+  },
+  "authors": [
+    {
+      "name": "Revin Roman",
+      "email": "xgismox@gmail.com",
+      "homepage": "http://rmrevin.ru/",
+      "role": "Founder and project lead"
+    }
+  ],
+  "require": {
+    "yiisoft/yii2": "~2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "rmrevin\\yii\\db\\migration\\": ""
+    }
+  }
+}
