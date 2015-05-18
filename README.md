@@ -42,7 +42,7 @@ Usage
 use yii\db\Schema;
 use rmrevin\yii\db\migration;
 
-class m140317_055355_file extends PowerMigration
+class m140317_055355_file extends migration\PowerMigration
 {
 
     public function init()

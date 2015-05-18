@@ -14,7 +14,7 @@ echo "<?php\n";
 use yii\db\Schema;
 use rmrevin\yii\db\migration;
 
-class <?= $className ?> extends \rmrevin\yii\db\migration\PowerMigration
+class <?= $className ?> extends migration\PowerMigration
 {
 
     public function init()
