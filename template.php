@@ -14,31 +14,47 @@ echo "<?php\n";
 use yii\db\Schema;
 use rmrevin\yii\db\migration;
 
-class <?= $className ?> extends migration\PowerMigration
+class  extends migration\PowerMigration
 {
 
-    public function init()
+    public function instructions()
     {
-        parent::init();
+        return [
+            'firstStep',
+            'secondStep',
+            'lastStep',
+        ];
+    }
 
-        $this->addInstruction()
-            ->up(function (migration\PowerMigration $Migration, migration\Instruction $Instruction) {
-                // migration UP
-                // $Migration->createTable('table_name', ['id' => Schema::TYPE_PK]);
-            })
-            ->down(function (migration\PowerMigration $Migration, migration\Instruction $Instruction) {
-                // migration DOWN
-                // $Migration->dropTable('table_name');
-            });
+    public function firstStep_up()
+    {
+        // one instruction is up
+        // $this->createTable('table_name', ['id' => Schema::TYPE_PK]);
+    }
 
-        $this->addInstruction()
-            ->up(function (migration\PowerMigration $Migration, migration\Instruction $Instruction) {
-                // migration UP
-            })
-            ->down(function (migration\PowerMigration $Migration, migration\Instruction $Instruction) {
-                // migration DOWN
-            });
+    public function firstStep_down()
+    {
+        // one instruction is down
+        // $Migration->dropTable('table_name');
+    }
 
-        // $this->addInstruction()
+    public function secondStep_up()
+    {
+        // one instruction is up
+    }
+
+    public function secondStep_down()
+    {
+        // one instruction is down
+    }
+
+    public function lastStep_up()
+    {
+        // one instruction is up
+    }
+
+    public function lastStep_down()
+    {
+        // one instruction is down
     }
 }

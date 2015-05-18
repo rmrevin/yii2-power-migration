@@ -12,23 +12,16 @@ use yii\helpers\Console;
  * Class PowerMigration
  * @package rmrevin\yii\db\migration
  */
-class PowerMigration extends \yii\db\Migration
+abstract class PowerMigration extends \yii\db\Migration
 {
-
-    /** @var Instruction[] */
-    private $instructions = [];
 
     /** @var array */
     private $executed = [];
 
     /**
-     * @param \Exception $e
+     * @return array
      */
-    public function errorTrace(\Exception $e)
-    {
-        echo Console::ansiFormat("Exception: " . $e->getMessage() . ' (' . $e->getFile() . ':' . $e->getLine() . ")\n", [Console::FG_RED]);
-        Console::clearLine();
-    }
+    abstract public function instructions();
 
     /**
      * @param string $executed_in if method call in up command, must be `up`, if method call in down command, must be `down`
@@ -48,14 +41,13 @@ class PowerMigration extends \yii\db\Migration
 
         $executed = $this->executed;
         if (!empty($executed)) {
-            foreach ($executed as $key) {
-                $Instruction = $this->getInstruction($key);
+            foreach ($executed as $instruction) {
                 switch ($executed_in) {
                     case 'up':
-                        $Instruction->downgrade($this);
+                        call_user_func($instruction . '_down');
                         break;
                     case 'down':
-                        $Instruction->upgrade($this);
+                        call_user_func($instruction . '_up');
                         break;
                 }
             }
@@ -67,16 +59,16 @@ class PowerMigration extends \yii\db\Migration
      */
     public function up()
     {
-        $instructions = $this->getInstructions();
+        $instructions = $this->instructions();
         if (!empty($instructions)) {
-            foreach ($instructions as $key => $Instruction) {
+            foreach ($instructions as $instruction) {
                 try {
-                    if ($Instruction->upgrade($this) === false) {
+                    if (call_user_func($instruction . '_up') === false) {
                         $this->rollback('up');
 
                         return false;
                     } else {
-                        $this->executed[] = $key;
+                        $this->executed[] = $instruction;
                     }
                 } catch (\Exception $e) {
                     $this->errorTrace($e);
@@ -96,16 +88,16 @@ class PowerMigration extends \yii\db\Migration
      */
     public function down()
     {
-        $instructions = $this->getInstructions();
+        $instructions = array_reverse($this->instructions());
         if (!empty($instructions)) {
-            foreach ($instructions as $key => $Instruction) {
+            foreach ($instructions as $key => $instruction) {
                 try {
-                    if ($Instruction->downgrade($this) === false) {
+                    if (call_user_func($instruction . '_down') === false) {
                         $this->rollback('down');
 
                         return false;
                     } else {
-                        $this->executed[] = $key;
+                        $this->executed[] = $instruction;
                     }
                 } catch (\Exception $e) {
                     $this->errorTrace($e);
@@ -121,32 +113,10 @@ class PowerMigration extends \yii\db\Migration
     }
 
     /**
-     * @return Instruction
+     * @param \Exception $e
      */
-    public function addInstruction()
+    public function errorTrace(\Exception $e)
     {
-        $Instruction = new Instruction();
-        $key = $Instruction->key;
-
-        $this->instructions[$key] = $Instruction;
-
-        return $this->getInstruction($key);
-    }
-
-    /**
-     * @param string $key
-     * @return Instruction
-     */
-    public function getInstruction($key)
-    {
-        return $this->instructions[$key];
-    }
-
-    /**
-     * @return Instruction[]
-     */
-    public function getInstructions()
-    {
-        return $this->instructions;
+        echo Console::ansiFormat("Exception: " . $e->getMessage() . ' (' . $e->getFile() . ':' . $e->getLine() . ")\n", [Console::FG_RED]);
     }
 }

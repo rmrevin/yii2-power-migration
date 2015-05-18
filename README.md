@@ -11,7 +11,7 @@ In `composer.json`:
 ```
 {
     "require": {
-        "rmrevin/yii2-power-migration": "~1.0"
+        "rmrevin/yii2-power-migration": "~1.1"
     }
 }
 ```
@@ -45,36 +45,43 @@ use rmrevin\yii\db\migration;
 class m140317_055355_file extends migration\PowerMigration
 {
 
-    public function init()
+    public function instructions()
     {
-        parent::init();
+        return [
+            'createTableFile',
+            'createTableFileLink',
+        ];
+    }
 
-        $this->addInstruction()
-            ->up(function (migration\PowerMigration $Migration, migration\Instruction $Instruction) {
-                $Migration->createTable('{{%file}}', [
-                    'id' => Schema::TYPE_PK,
-                    'mime' => Schema::TYPE_STRING,
-                    'size' => Schema::TYPE_BIGINT . ' DEFAULT 0',
-                    'name' => Schema::TYPE_STRING,
-                    'origin_name' => Schema::TYPE_STRING,
-                    'sha1' => Schema::TYPE_STRING . '(40) NOT NULL',
-                ]);
-            })
-            ->down(function (PowerMigration $Migration, Instruction $Instruction) {
-                $Migration->dropTable('{{%file}}');
-            });
-            
-        $this->addInstruction()
-            ->up(function (migration\PowerMigration $Migration, migration\Instruction $Instruction) {
-                $Migration->createTable('{{%file_link}}', [
-                    'file_id' => Schema::INTEGER,
-                    'url' => Schema::STRING,
-                    'FOREIGN KEY (file_id) REFERENCES {{%file}} (id) ON DELETE CASCADE ON UPDATE CASCADE',
-                ]);
-            })
-            ->down(function (PowerMigration $Migration, Instruction $Instruction) {
-                $Migration->dropTable('{{%file}}');
-            });
+    public function createTableFile_up()
+    {
+        $this->createTable('{{%file}}', [
+            'id' => Schema::TYPE_PK,
+            'mime' => Schema::TYPE_STRING . ' NOT NULL',
+            'size' => Schema::TYPE_BIGINT . ' NOT NULL DEFAULT 0',
+            'name' => Schema::TYPE_STRING . ' NOT NULL',
+            'origin_name' => Schema::TYPE_STRING . ' NOT NULL',
+            'sha1' => Schema::TYPE_STRING . '(40) NOT NULL',
+            'image_bad' => Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT 0',
+        ]);
+    }
+
+    public function createTableFile_down()
+    {
+        $this->dropTable('{{%file}}');
+    }
+    
+    public function createTableFileLink_up()
+    {
+        $this->createTable('{{%file_link}}', [
+            'file_id' => Schema::TYPE_PK,
+            'url' => Schema::TYPE_STRING . ' NOT NULL',
+        ]);
+    }
+
+    public function createTableFileLink_down()
+    {
+        $this->dropTable('{{%file_link}}');
     }
 }
 ```
