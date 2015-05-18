@@ -44,10 +44,10 @@ abstract class PowerMigration extends \yii\db\Migration
             foreach ($executed as $instruction) {
                 switch ($executed_in) {
                     case 'up':
-                        call_user_func($instruction . '_down');
+                        call_user_func([$this, $instruction . '_down']);
                         break;
                     case 'down':
-                        call_user_func($instruction . '_up');
+                        call_user_func([$this, $instruction . '_up']);
                         break;
                 }
             }
@@ -63,7 +63,7 @@ abstract class PowerMigration extends \yii\db\Migration
         if (!empty($instructions)) {
             foreach ($instructions as $instruction) {
                 try {
-                    if (call_user_func($instruction . '_up') === false) {
+                    if (call_user_func([$this, $instruction . '_up']) === false) {
                         $this->rollback('up');
 
                         return false;
@@ -92,7 +92,7 @@ abstract class PowerMigration extends \yii\db\Migration
         if (!empty($instructions)) {
             foreach ($instructions as $key => $instruction) {
                 try {
-                    if (call_user_func($instruction . '_down') === false) {
+                    if (call_user_func([$this, $instruction . '_down']) === false) {
                         $this->rollback('down');
 
                         return false;
